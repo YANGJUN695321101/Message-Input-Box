@@ -5,26 +5,19 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QByteArray, QBuffer
 import openai
 import asyncio
-from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
-from PyQt5.QtCore import QMetaObject
-from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot, Q_ARG
+from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot, pyqtSignal
 from openai import ChatCompletion
-import aiohttp
-
 
 api_key=openai.api_key
-openai.api_key = "s"
-
-
-
+openai.api_key = "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"
 
 class GenerateReplyTask(QRunnable):
-    def __init__(self, message, chat_window):
+    def __init__(self, message, chat_window, api_key):
         super().__init__()
         self.message = message
         self.chat_window = chat_window
+        self.api_key = api_key
 
-    @pyqtSlot()
     @pyqtSlot()
     def run(self):
         try:
@@ -33,22 +26,17 @@ class GenerateReplyTask(QRunnable):
             asyncio.set_event_loop(loop)
             response = loop.run_until_complete(self.chat_window.async_generate_reply(self.message))
             print(f"Generated response: {response}")
-            QMetaObject.invokeMethod(
-            self.chat_window,
-            "display_message",
-            Qt.QueuedConnection,
-            pyqtSlot(str, str, str, bool)(response),
-        )
-
+            self.chat_window.new_message_signal.emit("GPT-3.5-turbo", response, "D:\\DESK\\GPT-3.5\\ABC.png", False)
         except Exception as e:
-                print(f"Error in GenerateReplyTask: {e}")
-                self.chat_window.display_message('GPT-3.5-turbo', '抱歉，无法生成回复。', 'D:\\DESK\\GPT-3.5\\ABC.png', is_user=False)
-
+            print(f"Error in GenerateReplyTask: {e}")
+            self.chat_window.new_message_signal.emit('GPT-3.5-turbo', '抱歉，无法生成回复。', 'D:\\DESK\\GPT-3.5\\ABC.png', False)
 
 class ChatWindow(QMainWindow):
+    new_message_signal = pyqtSignal(str, str, str, bool)
+
     def __init__(self):
         super().__init__()
-
+        self.api_key = openai.api_key
         self.setGeometry(100, 100, 800, 600)
         self.setWindowTitle('微信聊天')
 
@@ -74,46 +62,47 @@ class ChatWindow(QMainWindow):
         self.main_layout.addLayout(input_layout)
         self.show()
 
+        self.new_message_signal.connect(self.display_message)
+
     def send_message(self, event):
         try:
             message = self.input_text.text()
             if message:
-                self.display_message('我', message, 'D:\\DESK\\GPT-3.5\\ABC.png', is_user=True)
+                self.display_message('我', message, 'D:\\DESK\\GPT-3.5\\ABC.png', True)
                 self.input_text.clear()
                 self.generate_reply(message)
         except Exception as e:
             print(f"Error: {e}")
 
     def generate_reply(self, message):
-        task = GenerateReplyTask(message, self)
+        task = GenerateReplyTask(message, self, api_key=openai.api_key)
         QThreadPool.globalInstance().start(task)
 
     async def async_generate_reply(self, message):
         try:
-            async with aiohttp.ClientSession() as session:
-                response = await session.post(
-                    "https://api.openai.com/v1/engines/gpt-3.5-turbo/completions",
-                    headers={"Authorization": f"Bearer {api_key}"},
-                    json={
-                        "messages": [
-                            {"role": "system", "content": "You are a helpful assistant."},
-                            {"role": "user", "content": message}
-                        ],
-                        "max_tokens": 100,
-                        "n": 1,
-                        "temperature": 0.8,
-                    },
-                )
-                response_json = await response.json()
-            return response_json["choices"][0]["message"]["content"]
+            prompt = f"You are a helpful assistant.\nUser: {message}\nAssistant:"
+            print(f"Sending prompt to GPT-3.5-turbo: {prompt}")
+            response = await ChatCompletion.create(
+                engine="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": message},
+                ],
+                max_tokens=100,
+                n=1,
+                stop=None,
+                temperature=0.8,
+                api_key=self.api_key,
+            )
+
+            result = response.choices[0].text.strip()
+            print(f"Received response from GPT-3.5-turbo: {result}")
+            return result
         except Exception as e:
             print(f"Error in async_generate_reply: {e}")
             return "抱歉，无法生成回复。"
 
-
-
-
-    def display_message(self, username, message, avatar_path, is_user=True, *args):
+    def display_message(self, username, message, avatar_path, is_user=True):
         pixmap = QPixmap(avatar_path)
         pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         buffer = QBuffer(QByteArray())
@@ -157,9 +146,8 @@ class ChatWindow(QMainWindow):
                 </div>
             '''
         self.chat_history.setHtml(self.chat_history.toHtml() + html)
-        self.chat_history.ensureCursorVisible()  # 修改此行
+        self.chat_history.ensureCursorVisible()
 
-        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = ChatWindow()
