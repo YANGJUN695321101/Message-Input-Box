@@ -13,7 +13,7 @@ import aiohttp
 
 
 api_key=openai.api_key
-openai.api_key = "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"
+openai.api_key = "s"
 
 
 
