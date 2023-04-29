@@ -15,6 +15,8 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QHBoxLayout,
                              QPushButton, QTabWidget, QTextEdit, QVBoxLayout,
                              QWidget)
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QSplitter, QListWidget
+
 
 openai.api_key = ""
 
