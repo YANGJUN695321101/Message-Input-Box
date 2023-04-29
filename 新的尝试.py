@@ -15,8 +15,6 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QHBoxLayout,
                              QPushButton, QTabWidget, QTextEdit, QVBoxLayout,
                              QWidget)
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QSplitter, QListWidget
-
 
 openai.api_key = ""
 
@@ -87,47 +85,15 @@ class ChatWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
         self.setWindowTitle('微信聊天')
 
-        self.splitter = QSplitter(Qt.Horizontal)
-        self.setCentralWidget(self.splitter)
+        self.chat_widget = QWidget()
+        self.setCentralWidget(self.chat_widget)
 
-        self.left_widget = QWidget()
-        self.left_layout = QVBoxLayout()
-        self.left_widget.setLayout(self.left_layout)
-
-        self.right_widget = QWidget()
-        self.right_layout = QVBoxLayout()
-        self.right_widget.setLayout(self.right_layout)
-        self.chat_history = QTextEdit()
-        self.chat_history.setReadOnly(True)
-        self.right_layout.addWidget(self.chat_history)
-
-        input_layout = QHBoxLayout()
-
-        self.input_text = QLineEdit()
-        input_layout.addWidget(self.input_text)
-
-        send_button = QLabel('发送')
-        send_button.mousePressEvent = lambda event: self.send_message(event)
-        input_layout.addWidget(send_button)
-
-        self.right_layout.addLayout(input_layout)
-
-        self.splitter.addWidget(self.left_widget)
-        self.splitter.addWidget(self.right_widget)
-
-        self.avatar_label = QLabel(self)
-        self.avatar_label.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
-        self.right_layout.addWidget(self.avatar_label)
-
-        
-        
-
-        
+        self.main_layout = QVBoxLayout()
+        self.chat_widget.setLayout(self.main_layout)
 
         self.chat_history = QTextEdit()
         self.chat_history.setReadOnly(True)
-        self.right_layout.addWidget(self.chat_history)
-
+        self.main_layout.addWidget(self.chat_history)
 
         input_layout = QHBoxLayout()
 
@@ -139,32 +105,21 @@ class ChatWindow(QMainWindow):
         input_layout.addWidget(send_button)
         self.tab_widget = QTabWidget()
 
+        # 创建聊天选项卡
+        self.chat_tab = QWidget()
+        self.chat_tab_layout = QVBoxLayout()
+        self.chat_tab.setLayout(self.chat_tab_layout)
+        self.tab_widget.addTab(self.chat_tab, "聊天")
+
         # 将聊天记录和输入布局移动到聊天选项卡
-        self.left_layout.addWidget(self.chat_history)
-        self.left_layout.addLayout(input_layout)
+        self.chat_tab_layout.addWidget(self.chat_history)
+        self.chat_tab_layout.addLayout(input_layout)
 
         # 创建设置选项卡
         self.settings_tab = QWidget()
         self.settings_tab_layout = QVBoxLayout()  # 修改为 QVBoxLayout
         self.settings_tab.setLayout(self.settings_tab_layout)
-
-        # 创建聊天列表选项卡
-        self.chat_list_widget = QListWidget()
-        self.chat_list_widget.addItem("聊天1")
-        self.chat_list_widget.addItem("聊天2")
-        self.chat_list_widget.currentItemChanged.connect(self.chat_list_item_changed)
-
-        self.tab_widget.addTab(self.chat_list_widget, "聊天列表")
-
-        # 添加设置选项卡
         self.tab_widget.addTab(self.settings_tab, "设置")
-
-        # 创建聊天窗口并添加到选项卡
-        chat_widget = QWidget()
-        chat_layout = QVBoxLayout(chat_widget)
-        chat_text_edit = QTextEdit(chat_widget)
-        chat_layout.addWidget(chat_text_edit)
-
 
         self.settings_top_layout = QHBoxLayout()  # 创建一个新的 QHBoxLayout
         self.settings_tab_layout.addLayout(self.settings_top_layout)
@@ -180,8 +135,7 @@ class ChatWindow(QMainWindow):
         self.settings_top_layout.addWidget(save_button)
         
         # 将选项卡部件添加到主布局中
-        self.left_layout.addWidget(self.tab_widget)
-
+        self.main_layout.addWidget(self.tab_widget)
         # 创建一个指令编辑文本框
         self.commands_editor = QTextEdit()
         self.settings_tab_layout.addWidget(self.commands_editor)
@@ -195,21 +149,12 @@ class ChatWindow(QMainWindow):
         new_commands_button.clicked.connect(self.new_commands)
         self.settings_tab_layout.addWidget(new_commands_button)
         # 将下拉列表添加到布局中
-        self.left_layout.insertWidget(1, self.commands_combo)
-
+        self.main_layout.insertWidget(1, self.commands_combo)
 
         self.show()
 
 
         self.new_message_signal.connect(self.display_message)
-    def chat_list_item_changed(self, current_item):
-        if current_item.text() == "聊天1":
-            self.chat_widget.setVisible(True)
-            self.chat_widget2.setVisible(False)
-        elif current_item.text() == "聊天2":
-            self.chat_widget.setVisible(False)
-            self.chat_widget2.setVisible(True)
-
     def select_avatar(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
