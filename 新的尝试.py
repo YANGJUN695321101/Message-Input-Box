@@ -15,9 +15,9 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QHBoxLayout,
                              QWidget)
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.Qt import PYQT_VERSION_STR
-print(PYQT_VERSION_STR)
 
-print(PyQt5.__version__)
+
+
 openai.api_key = ""
 
 class GenerateReplyTask(QRunnable):
