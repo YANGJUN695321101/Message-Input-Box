@@ -126,7 +126,8 @@ class ChatWindow(QMainWindow):
 
         self.chat_history = QTextEdit()
         self.chat_history.setReadOnly(True)
-        self.main_layout.addWidget(self.chat_history)
+        self.right_layout.addWidget(self.chat_history)
+
 
         input_layout = QHBoxLayout()
 
@@ -193,7 +194,8 @@ class ChatWindow(QMainWindow):
         new_commands_button.clicked.connect(self.new_commands)
         self.settings_tab_layout.addWidget(new_commands_button)
         # 将下拉列表添加到布局中
-        self.main_layout.insertWidget(1, self.commands_combo)
+        self.left_layout.insertWidget(1, self.commands_combo)
+
 
         self.show()
 
