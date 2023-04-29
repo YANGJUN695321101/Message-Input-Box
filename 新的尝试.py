@@ -6,16 +6,16 @@ import sys
 import httpx
 import openai
 import PyQt5
-from openai import ChatCompletion
-from PyQt5.QtCore import (QBuffer, QByteArray, QRunnable,
-                          QSortFilterProxyModel, QStandardItemModel, Qt,
-                          QThreadPool, pyqtSignal, pyqtSlot)
-from PyQt5.QtGui import QPixmap, QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QFileDialog,
-                             QHBoxLayout, QLabel, QLineEdit, QListView,
-                             QMainWindow, QPushButton, QSplitter,
-                             QStandardItemModel, QTabWidget, QTextEdit,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtCore import (QBuffer, QByteArray, QRegExp, QRunnable, QSize,
+                          QSortFilterProxyModel, Qt)
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QHBoxLayout,
+                             QLabel, QLineEdit, QListView, QMainWindow,
+                             QPushButton, QSplitter, QTextEdit, QVBoxLayout,
+                             QWidget)
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.Qt import PYQT_VERSION_STR
+print(PYQT_VERSION_STR)
 
 print(PyQt5.__version__)
 openai.api_key = ""
