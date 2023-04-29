@@ -153,17 +153,25 @@ class ChatWindow(QMainWindow):
         self.settings_tab = QWidget()
         self.settings_tab_layout = QVBoxLayout()  # 修改为 QVBoxLayout
         self.settings_tab.setLayout(self.settings_tab_layout)
+
+        # 创建聊天列表选项卡
         self.chat_list_widget = QListWidget()
+        self.chat_list_widget.addItem("聊天1")
+        self.chat_list_widget.addItem("聊天2")
+        self.chat_list_widget.currentItemChanged.connect(self.chat_list_item_changed)
+
         self.tab_widget.addTab(self.chat_list_widget, "聊天列表")
+
+        # 添加设置选项卡
         self.tab_widget.addTab(self.settings_tab, "设置")
 
+        # 创建聊天窗口并添加到选项卡
         chat_widget = QWidget()
         chat_layout = QVBoxLayout(chat_widget)
         chat_text_edit = QTextEdit(chat_widget)
         chat_layout.addWidget(chat_text_edit)
 
         self.tab_widget.addTab(chat_widget, "聊天")
-
 
         self.settings_top_layout = QHBoxLayout()  # 创建一个新的 QHBoxLayout
         self.settings_tab_layout.addLayout(self.settings_top_layout)
@@ -201,6 +209,14 @@ class ChatWindow(QMainWindow):
 
 
         self.new_message_signal.connect(self.display_message)
+    def chat_list_item_changed(self, current_item):
+        if current_item.text() == "聊天1":
+            self.chat_widget.setVisible(True)
+            self.chat_widget2.setVisible(False)
+        elif current_item.text() == "聊天2":
+            self.chat_widget.setVisible(False)
+            self.chat_widget2.setVisible(True)
+
     def select_avatar(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
