@@ -146,7 +146,8 @@ class ChatWindow(QMainWindow):
         self.settings_tab_layout.addWidget(new_commands_button)
 
         # 将下拉列表添加到布局中
-        self.main_layout.insertWidget(1, self.commands_combo)
+        self.chat_layout.insertWidget(1, self.commands_combo)
+
 
         # 设置窗口属性
         self.api_key = openai.api_key
