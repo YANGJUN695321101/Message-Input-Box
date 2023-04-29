@@ -85,17 +85,41 @@ class ChatWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
         self.setWindowTitle('微信聊天')
 
-        self.chat_widget = QWidget()
-        self.setCentralWidget(self.chat_widget)
+        self.splitter = QSplitter(Qt.Horizontal)
+        self.setCentralWidget(self.splitter)
 
-        self.main_layout = QVBoxLayout()
+        self.left_widget = QWidget()
+        self.left_layout = QVBoxLayout()
+        self.left_widget.setLayout(self.left_layout)
+
+        self.right_widget = QWidget()
+        self.right_layout = QVBoxLayout()
+        self.right_widget.setLayout(self.right_layout)
+        self.chat_history = QTextEdit()
+        self.chat_history.setReadOnly(True)
+        self.right_layout.addWidget(self.chat_history)
+
+        input_layout = QHBoxLayout()
+
+        self.input_text = QLineEdit()
+        input_layout.addWidget(self.input_text)
+
+        send_button = QLabel('发送')
+        send_button.mousePressEvent = lambda event: self.send_message(event)
+        input_layout.addWidget(send_button)
+
+        self.right_layout.addLayout(input_layout)
+
+        self.splitter.addWidget(self.left_widget)
+        self.splitter.addWidget(self.right_widget)
+
         self.avatar_label = QLabel(self)
         self.avatar_label.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
         self.main_layout.addWidget(self.avatar_label)
         
         
 
-        self.chat_widget.setLayout(self.main_layout)
+        
 
         self.chat_history = QTextEdit()
         self.chat_history.setReadOnly(True)
@@ -125,7 +149,10 @@ class ChatWindow(QMainWindow):
         self.settings_tab = QWidget()
         self.settings_tab_layout = QVBoxLayout()  # 修改为 QVBoxLayout
         self.settings_tab.setLayout(self.settings_tab_layout)
+        self.chat_list_widget = QListWidget()
+        self.tab_widget.addTab(self.chat_list_widget, "聊天列表")
         self.tab_widget.addTab(self.settings_tab, "设置")
+
         chat_widget = QWidget()
         chat_layout = QVBoxLayout(chat_widget)
         chat_text_edit = QTextEdit(chat_widget)
@@ -148,7 +175,8 @@ class ChatWindow(QMainWindow):
         self.settings_top_layout.addWidget(save_button)
         
         # 将选项卡部件添加到主布局中
-        self.main_layout.addWidget(self.tab_widget)
+        self.left_layout.addWidget(self.tab_widget)
+
         # 创建一个指令编辑文本框
         self.commands_editor = QTextEdit()
         self.settings_tab_layout.addWidget(self.commands_editor)
