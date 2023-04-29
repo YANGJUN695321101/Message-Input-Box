@@ -5,17 +5,19 @@ import sys
 
 import httpx
 import openai
+import PyQt5
 from openai import ChatCompletion
 from PyQt5.QtCore import (QBuffer, QByteArray, QRunnable,
-                          QSortFilterProxyModel, Qt, QThreadPool, pyqtSignal,
-                          pyqtSlot)
+                          QSortFilterProxyModel, QStandardItemModel, Qt,
+                          QThreadPool, pyqtSignal, pyqtSlot)
 from PyQt5.QtGui import QPixmap, QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QHBoxLayout,
-                             QLabel, QLineEdit, QListView, QMainWindow,
-                             QPushButton, QTabWidget, QTextEdit, QVBoxLayout,
-                             QWidget)
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import (QApplication, QComboBox, QCompleter, QFileDialog,
+                             QHBoxLayout, QLabel, QLineEdit, QListView,
+                             QMainWindow, QPushButton, QSplitter,
+                             QStandardItemModel, QTabWidget, QTextEdit,
+                             QVBoxLayout, QWidget)
 
+print(PyQt5.__version__)
 openai.api_key = ""
 
 class GenerateReplyTask(QRunnable):
@@ -43,58 +45,43 @@ class ChatWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.setWindowTitle('微信聊天仿制版')
+        self.setGeometry(100, 100, 800, 600)
+
+        self.main_splitter = QSplitter(Qt.Horizontal)
+        self.setCentralWidget(self.main_splitter)
+
+        # 联系人列表
+        self.contacts_list_view = QListView()
+        self.contacts_model = QStandardItemModel(self)
+        self.contacts_list_view.setModel(self.contacts_model)
+        self.main_splitter.addWidget(self.contacts_list_view)
+
+        # 聊天窗口
+        self.chat_widget = QWidget()
+        self.chat_layout = QVBoxLayout()
+        self.chat_widget.setLayout(self.chat_layout)
+
+        # 聊天记录
+        self.chat_history = QTextEdit()
+        self.chat_history.setReadOnly(True)
+        self.chat_layout.addWidget(self.chat_history)
 
         # 创建下拉列表
         self.commands_combo = QComboBox()
-        self.commands_list_view = QListView()
-        self.commands_model = QStandardItemModel(self)
-        self.proxy_model = QSortFilterProxyModel(self)
-        self.proxy_model.setSourceModel(self.commands_model)
-        self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.proxy_model.setFilterKeyColumn(-1)
-        self.commands_list_view.setModel(self.proxy_model)
-        self.commands_list_view.setEditTriggers(QListView.NoEditTriggers)
-        self.commands_combo.activated.connect(self.insert_command)
+        self.chat_layout.addWidget(self.commands_combo)
 
-        self.commands_combo.setLineEdit(QLineEdit())
-        self.commands_combo.lineEdit().textChanged.connect(self.proxy_model.setFilterRegExp)
-        # 添加自动完成器
-        self.completer = QCompleter()
-        self.completer.setCompletionMode(QCompleter.PopupCompletion)
-        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.commands_combo.setCompleter(self.completer)
-        # 从本地文件加载命令
-        self.load_commands_from_file('D:\\DESK\\GPT-3.5\\GPTPrompt11.json')
+        # 输入框和发送按钮
+        self.input_layout = QHBoxLayout()
+        self.chat_layout.addLayout(self.input_layout)
 
-        # 设置窗口属性
-        self.api_key = openai.api_key
-        self.setGeometry(100, 100, 800, 600)
-        self.setWindowTitle('微信聊天')
-
-        # 创建聊天部件
-        self.chat_widget = QWidget()
-        self.setCentralWidget(self.chat_widget)
-
-        # 创建主布局
-        self.main_layout = QVBoxLayout()
-        self.chat_widget.setLayout(self.main_layout)
-
-        # 创建聊天记录文本框
-        self.chat_history = QTextEdit()
-        self.chat_history.setReadOnly(True)
-        self.main_layout.addWidget(self.chat_history)
-
-        # 创建输入布局
-        input_layout = QHBoxLayout()
-
-        # 创建输入框
         self.input_text = QLineEdit()
-        input_layout.addWidget(self.input_text)
+        self.input_layout.addWidget(self.input_text)
 
-        # 创建发送按钮
-        send_button = QLabel('发送')
-        send_button.mousePressEvent = lambda event: self.send_message(event)
-        input_layout.addWidget(send_button)
+        self.send_button = QPushButton("发送")
+        self.input_layout.addWidget(self.send_button)
+
+        self.main_splitter.addWidget(self.chat_widget)
 
         # 创建选项卡部件
         self.tab_widget = QTabWidget()
@@ -107,7 +94,7 @@ class ChatWindow(QMainWindow):
 
         # 将聊天记录和输入布局添加到聊天选项卡
         self.chat_tab_layout.addWidget(self.chat_history)
-        self.chat_tab_layout.addLayout(input_layout)
+        self.chat_tab_layout.addLayout(self.input_layout)
 
         # 创建设置选项卡
         self.settings_tab = QWidget()
@@ -143,9 +130,9 @@ class ChatWindow(QMainWindow):
         self.settings_tab_layout.addWidget(select_avatar_button)
 
         # 将选项卡部件添加到主布局中
-        self.main_layout.addWidget(self.tab_widget)
+        self.chat_layout.addWidget(self.tab_widget)
 
-        # 创建指令编辑文本框
+            # 创建指令编辑文本框
         self.commands_editor = QTextEdit()
         self.settings_tab_layout.addWidget(self.commands_editor)
 
@@ -162,7 +149,14 @@ class ChatWindow(QMainWindow):
         # 将下拉列表添加到布局中
         self.main_layout.insertWidget(1, self.commands_combo)
 
+        # 设置窗口属性
+        self.api_key = openai.api_key
+        self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle('微信聊天')
+
         self.show()
+
+
 
     def select_avatar(self):
         options = QFileDialog.Options()
