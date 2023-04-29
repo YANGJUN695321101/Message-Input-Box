@@ -39,50 +39,41 @@ class GenerateReplyTask(QRunnable):
             print(f"Error in GenerateReplyTask: {e}")
             self.chat_window.new_message_signal.emit('GPT-3.5-turbo', '抱歉，无法生成回复。', 'D:\\DESK\\GPT-3.5\\ABC.png', False)
 
-class ChatWindow(QMainWindow):
-    new_message_signal = pyqtSignal(str, str, str, bool)
-
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('微信聊天仿制版')
+
+        # 创建一个下拉列表
+        self.commands_combo = QComboBox()
+        # 从本地文件加载命令
+        self.load_commands_from_file('D:\\DESK\\GPT-3.5\\GPTPrompt11.json')
+        # 为下拉列表绑定选择事件
+        self.commands_combo.currentIndexChanged.connect(self.insert_command)
+
+        self.api_key = openai.api_key
         self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle('微信聊天')
 
-        self.main_splitter = QSplitter(Qt.Horizontal)
-        self.setCentralWidget(self.main_splitter)
-
-        # 联系人列表
-        self.contacts_list_view = QListView()
-        self.contacts_model = QStandardItemModel(self)
-        self.contacts_list_view.setModel(self.contacts_model)
-        self.main_splitter.addWidget(self.contacts_list_view)
-
-        # 聊天窗口
         self.chat_widget = QWidget()
-        self.chat_layout = QVBoxLayout()
-        self.chat_widget.setLayout(self.chat_layout)
+        self.setCentralWidget(self.chat_widget)
 
-        # 聊天记录
+        self.main_layout = QVBoxLayout()
+        self.chat_widget.setLayout(self.main_layout)
+
         self.chat_history = QTextEdit()
         self.chat_history.setReadOnly(True)
-        self.chat_layout.addWidget(self.chat_history)
+        self.main_layout.addWidget(self.chat_history)
 
-        # 创建下拉列表
-        self.commands_combo = QComboBox()
-        self.chat_layout.addWidget(self.commands_combo)
-
-        # 输入框和发送按钮
-        self.input_layout = QHBoxLayout()
-        self.chat_layout.addLayout(self.input_layout)
+        input_layout = QHBoxLayout()
 
         self.input_text = QLineEdit()
-        self.input_layout.addWidget(self.input_text)
+        input_layout.addWidget(self.input_text)
 
-        self.send_button = QPushButton("发送")
-        self.input_layout.addWidget(self.send_button)
+        input_layout.addWidget(self.commands_combo)
 
-        self.main_splitter.addWidget(self.chat_widget)
-
-        # 创建选项卡部件
+        send_button = QLabel('发送')
+        send_button.mousePressEvent = lambda event: self.send_message(event)
+        input_layout.addWidget(send_button)
         self.tab_widget = QTabWidget()
 
         # 创建聊天选项卡
@@ -91,9 +82,9 @@ class ChatWindow(QMainWindow):
         self.chat_tab.setLayout(self.chat_tab_layout)
         self.tab_widget.addTab(self.chat_tab, "聊天")
 
-        # 将聊天记录和输入布局添加到聊天选项卡
+        # 将聊天记录和输入布局移动到聊天选项卡
         self.chat_tab_layout.addWidget(self.chat_history)
-        self.chat_tab_layout.addLayout(self.input_layout)
+        self.chat_tab_layout.addLayout(input_layout)
 
         # 创建设置选项卡
         self.settings_tab = QWidget()
@@ -101,58 +92,35 @@ class ChatWindow(QMainWindow):
         self.settings_tab.setLayout(self.settings_tab_layout)
         self.tab_widget.addTab(self.settings_tab, "设置")
 
-        # 在设置选项卡中创建API密钥输入框和保存按钮
         self.settings_top_layout = QHBoxLayout()
         self.settings_tab_layout.addLayout(self.settings_top_layout)
 
-        # 创建API密钥输入框
+        # 在设置选项卡中添加密钥输入框和保存按钮
         self.api_key_input = QLineEdit()
         self.api_key_input.setPlaceholderText("请输入KEY并保存")
         self.settings_top_layout.addWidget(self.api_key_input)
         self.api_key_input.setEchoMode(QLineEdit.Password)
 
-        # 创建保存按钮
         save_button = QPushButton("保存")
         save_button.clicked.connect(self.save_api_key)
         self.settings_top_layout.addWidget(save_button)
 
-        # 创建一个按钮和一个QLabel来显示用户头像
-        self.user_avatar_label = QLabel()
-        self.user_avatar_label.setFixedSize(100, 100)
-        self.user_avatar_path = 'D:\\DESK\\GPT-3.5\\ABC.png'  # 将用户头像路径设置为默认值
-        self.update_user_avatar(self.user_avatar_path)  # 显示用户头像
-        self.settings_tab_layout.addWidget(self.user_avatar_label)
-
-        # 创建选择头像按钮
-        select_avatar_button = QPushButton("选择头像")
-        select_avatar_button.clicked.connect(self.select_avatar)
-        self.settings_tab_layout.addWidget(select_avatar_button)
-
         # 将选项卡部件添加到主布局中
-        self.chat_layout.addWidget(self.tab_widget)
+        self.main_layout.addWidget(self.tab_widget)
 
-            # 创建指令编辑文本框
+        # 创建一个指令编辑文本框
         self.commands_editor = QTextEdit()
         self.settings_tab_layout.addWidget(self.commands_editor)
 
-        # 创建保存指令集按钮
+        # 创建一个保存按钮
         save_commands_button = QPushButton("保存指令集")
         save_commands_button.clicked.connect(self.save_commands)
         self.settings_tab_layout.addWidget(save_commands_button)
 
-        # 创建新建指令集按钮
+        # 在保存指令集按钮旁边添加一个新建指令集按钮
         new_commands_button = QPushButton("新建指令集")
         new_commands_button.clicked.connect(self.new_commands)
         self.settings_tab_layout.addWidget(new_commands_button)
-
-        # 将下拉列表添加到布局中
-        self.chat_layout.insertWidget(1, self.commands_combo)
-
-
-        # 设置窗口属性
-        self.api_key = openai.api_key
-        self.setGeometry(100, 100, 800, 600)
-        self.setWindowTitle('微信聊天')
 
         self.show()
 
@@ -362,5 +330,5 @@ class ChatWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = ChatWindow()
+    window = QMainWindow()
     sys.exit(app.exec_())  
