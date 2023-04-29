@@ -117,7 +117,8 @@ class ChatWindow(QMainWindow):
 
         self.avatar_label = QLabel(self)
         self.avatar_label.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
-        self.main_layout.addWidget(self.avatar_label)
+        self.right_layout.addWidget(self.avatar_label)
+
         
         
 
