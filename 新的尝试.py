@@ -139,15 +139,9 @@ class ChatWindow(QMainWindow):
         input_layout.addWidget(send_button)
         self.tab_widget = QTabWidget()
 
-        # 创建聊天选项卡
-        self.chat_tab = QWidget()
-        self.chat_tab_layout = QVBoxLayout()
-        self.chat_tab.setLayout(self.chat_tab_layout)
-        self.tab_widget.addTab(self.chat_tab, "聊天")
-
         # 将聊天记录和输入布局移动到聊天选项卡
-        self.chat_tab_layout.addWidget(self.chat_history)
-        self.chat_tab_layout.addLayout(input_layout)
+        self.left_layout.addWidget(self.chat_history)
+        self.left_layout.addLayout(input_layout)
 
         # 创建设置选项卡
         self.settings_tab = QWidget()
@@ -171,7 +165,6 @@ class ChatWindow(QMainWindow):
         chat_text_edit = QTextEdit(chat_widget)
         chat_layout.addWidget(chat_text_edit)
 
-        self.tab_widget.addTab(chat_widget, "聊天")
 
         self.settings_top_layout = QHBoxLayout()  # 创建一个新的 QHBoxLayout
         self.settings_tab_layout.addLayout(self.settings_top_layout)
