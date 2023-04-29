@@ -89,6 +89,12 @@ class ChatWindow(QMainWindow):
         self.setCentralWidget(self.chat_widget)
 
         self.main_layout = QVBoxLayout()
+        self.avatar_label = QLabel(self)
+        self.avatar_label.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
+        self.main_layout.addWidget(self.avatar_label)
+        
+        
+
         self.chat_widget.setLayout(self.main_layout)
 
         self.chat_history = QTextEdit()
@@ -120,6 +126,13 @@ class ChatWindow(QMainWindow):
         self.settings_tab_layout = QVBoxLayout()  # 修改为 QVBoxLayout
         self.settings_tab.setLayout(self.settings_tab_layout)
         self.tab_widget.addTab(self.settings_tab, "设置")
+        chat_widget = QWidget()
+        chat_layout = QVBoxLayout(chat_widget)
+        chat_text_edit = QTextEdit(chat_widget)
+        chat_layout.addWidget(chat_text_edit)
+
+        self.tab_widget.addTab(chat_widget, "聊天")
+
 
         self.settings_top_layout = QHBoxLayout()  # 创建一个新的 QHBoxLayout
         self.settings_tab_layout.addLayout(self.settings_top_layout)
