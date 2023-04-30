@@ -1,9 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QLineEdit, QTextEdit, QPushButton,
-                             QLabel, QWidget, QListWidget, QListWidgetItem, QFileDialog, QDialog, QAction)
+                             QLabel, QWidget, QListWidget, QListWidgetItem, QFileDialog, QDialog, QAction, QInputDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon, QMovie
-from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtGui import QPixmap, QIcon, QMovie,QListView
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtCore import QFileInfo
 import os
