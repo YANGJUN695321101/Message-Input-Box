@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QHBoxLayout, QInputDialog,
                              QSizePolicy, QSpacerItem, QTextEdit, QVBoxLayout,
                              QWidget, QTabWidget, QFormLayout, QCheckBox, QFileDialog)
 
+from PyQt5.QtWidgets import QMenu, QAction
 
 class Contact:
     def __init__(self, name, avatar_path, introduction):
@@ -128,25 +129,31 @@ class MainWindow(QMainWindow):
         self.contact_list.customContextMenuRequested.connect(self.show_contact_menu)
 
     def show_contact_menu(self, position):
-        menu = QMenu(self.contact_list)
-        modify_contact = menu.addAction("修改联系人")
-        delete_contact = menu.addAction("删除联系人")
-        change_user_avatar = menu.addAction("修改用户头像")
-        change_ai_avatar = menu.addAction("修改AI头像")
-        change_username = menu.addAction("修改用户名")
-        change_ai_name = menu.addAction("修改AI名称")
-        menu.addSeparator()
-        menu.addSeparator()
-        modify_ai_engine = menu.addAction("修改 AI 引擎")
+        # 创建一个菜单并将其关联到当前对象
+        menu = QMenu(self)
 
-        # Connect triggered signals to corresponding slot functions
-        modify_contact.triggered.connect(self.modify_contact_info)
-        delete_contact.triggered.connect(self.remove_contact)
-        change_user_avatar.triggered.connect(self.change_user_avatar)
-        change_ai_avatar.triggered.connect(self.change_ai_avatar)
-        change_username.triggered.connect(self.change_username)
-        change_ai_name.triggered.connect(self.change_ai_name)
-        modify_ai_engine.triggered.connect(self.change_ai_engine)
+        # 创建各个操作项
+        modify_contact = QAction("修改联系人", self)
+        delete_contact = QAction("删除联系人", self)
+        modify_ai_engine = QAction("修改 AI 引擎", self)
+
+        # 将操作项添加到菜单中
+        menu.addAction(modify_contact)
+        menu.addAction(delete_contact)
+        menu.addSeparator()
+        menu.addAction(modify_ai_engine)
+
+        # 显示菜单并获取选中的操作项
+        action = menu.exec_(self.mapToGlobal(position))
+
+        # 根据选中的操作项执行相应的函数
+        if action == modify_contact:
+            self.modify_contact_info()
+        elif action == delete_contact:
+            self.remove_contact()
+        elif action == modify_ai_engine:
+            self.change_ai_engine()
+
 
         # 在鼠标位置显示右键菜单
         action = menu.exec_(self.contact_list.mapToGlobal(position))
