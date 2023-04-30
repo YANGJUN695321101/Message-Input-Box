@@ -129,31 +129,24 @@ class MainWindow(QMainWindow):
         self.contact_list.customContextMenuRequested.connect(self.show_contact_menu)
 
     def show_contact_menu(self, position):
-        # 创建一个菜单并将其关联到当前对象
         menu = QMenu(self)
-
-        # 创建各个操作项
         modify_contact = QAction("修改联系人", self)
         delete_contact = QAction("删除联系人", self)
         modify_ai_engine = QAction("修改 AI 引擎", self)
 
-        # 将操作项添加到菜单中
         menu.addAction(modify_contact)
         menu.addAction(delete_contact)
         menu.addSeparator()
         menu.addAction(modify_ai_engine)
 
-        # 显示菜单并获取选中的操作项
         action = menu.exec_(self.mapToGlobal(position))
 
-        # 根据选中的操作项执行相应的函数
         if action == modify_contact:
             self.modify_contact_info()
         elif action == delete_contact:
             self.remove_contact()
         elif action == modify_ai_engine:
             self.change_ai_engine()
-
 
         # 在鼠标位置显示右键菜单
         action = menu.exec_(self.contact_list.mapToGlobal(position))
