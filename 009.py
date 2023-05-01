@@ -1,6 +1,7 @@
 import os
 import sys
 
+
 from PyQt5.QtCore import QFileInfo, QRect, QRectF, QSize, Qt
 from PyQt5.QtGui import (QBrush, QColor, QFont, QIcon, QMovie, QPainter,
                          QPainterPath, QPen, QPixmap)
@@ -9,6 +10,10 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
                              QListView, QListWidget, QListWidgetItem,
                              QMainWindow, QMenu, QPushButton, QTextEdit,
                              QVBoxLayout, QWidget)
+
+
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton
+
 class MessageInputBox(QWidget):
     def __init__(self):
         super().__init__()
@@ -22,17 +27,17 @@ class MessageInputBox(QWidget):
         self.main_layout = QVBoxLayout(self)
 
         self.text_edit = QTextEdit(self)
-        self.text_edit.setPlaceholderText("Type your message here...")  # 修复拼写错误
+        self.text_edit.setPlaceholderText("Type your message here...")
         self.main_layout.addWidget(self.text_edit)
 
-        hbox = QHBoxLayout()  # 为 QHBoxLayout 分配变量
+        hbox = QHBoxLayout()
         self.send_btn = QPushButton("Send", self)
         hbox.addWidget(self.send_btn)
 
         self.record_btn = QPushButton("Record", self)
         hbox.addWidget(self.record_btn)
 
-        self.main_layout.addLayout(hbox)  # 将 hbox 添加到 main_layout
+        self.main_layout.addLayout(hbox)
 
         self.send_btn.clicked.connect(self.send_msg)
         self.record_btn.clicked.connect(self.record_msg)
@@ -44,6 +49,8 @@ class MessageInputBox(QWidget):
 
     def record_msg(self):
         print("Start recording message...")
+
+from MessageInputBox import MessageInputBox
 
 # 自定义圆角矩形 QLabel 子类
 class RoundedRectLabel(QLabel):
@@ -456,8 +463,9 @@ class MainWindow(QMainWindow):
         self.ai_avatar.setPixmap(QPixmap(ai_avatar_path).scaled(50, 50, Qt.KeepAspectRatio))
         
         self.input_text.clear()
-
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MainWindow()
+    window = MessageInputBox()
+    window.show()
     sys.exit(app.exec_())
