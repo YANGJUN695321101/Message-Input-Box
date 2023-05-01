@@ -2,8 +2,8 @@ import os
 import sys
 
 from PyQt5.QtCore import QFileInfo, QRect, QRectF, QSize, Qt
-from PyQt5.QtGui import (QBrush, QColor, QFont, QIcon, QMovie, QPainter, QPen,
-                         QPixmap)
+from PyQt5.QtGui import (QBrush, QColor, QFont, QIcon, QMovie, QPainter,
+                         QPainterPath, QPen, QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
                              QHBoxLayout, QInputDialog, QLabel, QLineEdit,
                              QListView, QListWidget, QListWidgetItem,
@@ -11,68 +11,25 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
                              QVBoxLayout, QWidget)
 
 
-def paint_rounded_rect(painter, rect, radius, color):
-    painter.setBrush(color)
-    painter.setPen(Qt.NoPen)
-    painter.setRenderHint(QPainter.Antialiasing, True)
-    painter.drawRoundedRect(rect, radius, radius)
-
-class CustomLabel(QLabel):
-    def __init__(self, parent=None):
-        super(CustomLabel, self).__init__(parent)
-        self.user_avatar = QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio)
-        self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\XYZ.gif")
-        self.user_avatar_movie.setScaledSize(QSize(50, 50))
-        self.user_avatar_movie.start()
+# 自定义圆角矩形 QLabel 子类
+class RoundedRectLabel(QLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def paintEvent(self, event):
         painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
 
-        user_rect = QRect(0, 0, 200, self.height())
-        paint_rounded_rect(painter, user_rect, 10, QColor(0, 0, 255))
-        painter.drawPixmap(5, 5, self.user_avatar)
-        painter.drawText(60, 30, "用户名称")
+        # 设置圆角矩形
+        rect = QRect(0, 0, self.width(), self.height())
+        rounded_rect = QPainterPath()
+        rounded_rect.addRoundedRect(rect, 10, 10)  # 设置圆角半径
 
-        ai_rect = QRect(self.width() - 200, 0, 200, self.height())
-        paint_rounded_rect(painter, ai_rect, 10, QColor(0, 0, 255))
-        painter.drawPixmap(self.width() - 55, 5, self.user_avatar_movie.currentPixmap())
-        painter.drawText(self.width() - 130, 30, "AI名称")
+        # 用圆角矩形裁剪 QPainter
+        painter.setClipPath(rounded_rect)
 
-        super(CustomLabel, self).paintEvent(event)
-
-app = QApplication([])
-
-main_widget = QWidget()
-main_layout = QVBoxLayout()
-
-label = CustomLabel()
-label.setFixedSize(400, 60)
-main_layout.addWidget(label)
-
-# 在这里添加其他控件
-# main_layout.addWidget(your_other_widget)
-
-main_widget.setLayout(main_layout)
-main_widget.show()
-
-app.exec_()
-
-app = QApplication([])
-
-main_widget = QWidget()
-main_layout = QVBoxLayout()
-
-label = CustomLabel()
-label.setFixedSize(400, 60)
-main_layout.addWidget(label)
-
-# 在这里添加其他控件
-# main_layout.addWidget(your_other_widget)
-
-main_widget.setLayout(main_layout)
-main_widget.show()
-
-app.exec_()
+        # 绘制 QLabel 的原始内容
+        super().paintEvent(event)
 
 
 # 用户资料对话框类
@@ -153,7 +110,7 @@ class MainWindow(QMainWindow):
         left_layout = QVBoxLayout()
 
         # 用户头像
-        self.user_avatar = QLabel()
+        self.user_avatar = RoundedRectLabel()
         self.user_avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio))
         self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\ABC.gif")  # 更改为您的GIF路径
         self.user_avatar.setMovie(self.user_avatar_movie)
@@ -161,7 +118,7 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.user_avatar)
 
         # 用户名称
-        self.user_name_label = QLabel()
+        self.user_name_label = RoundedRectLabel()
         self.user_name_label.setText("用户")
         self.user_name_label.setAlignment(Qt.AlignCenter)
         self.user_name_label.setAutoFillBackground(True)
@@ -171,15 +128,16 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.user_name_label)
 
         # AI头像
-        self.ai_avatar = QLabel()
+        self.ai_avatar = RoundedRectLabel()
         self.ai_avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
         self.ai_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\DEF.gif")  # 更改为您的GIF路径
         self.ai_avatar.setMovie(self.ai_avatar_movie)
         self.ai_avatar_movie.start()
         left_layout.addWidget(self.ai_avatar)
 
+
         # AI名称
-        self.ai_name_label = QLabel()
+        self.ai_name_label = RoundedRectLabel()
         self.ai_name_label.setText("AI")
         self.ai_name_label.setAlignment(Qt.AlignCenter)
         self.ai_name_label.setAutoFillBackground(True)
@@ -187,7 +145,62 @@ class MainWindow(QMainWindow):
         palette.setColor(self.ai_name_label.backgroundRole(), QColor(0, 0, 255, 128))
         self.ai_name_label.setPalette(palette)
         left_layout.addWidget(self.ai_name_label)
+            # 用户头像和名称组合
+        self.user_avatar_name_container = QWidget()
+        user_avatar_name_layout = QHBoxLayout()
+        self.user_avatar_name_container.setLayout(user_avatar_name_layout)
+        user_avatar_name_layout.addWidget(self.user_avatar)
+        user_avatar_name_layout.addWidget(self.user_name_label)
+        left_layout.addWidget(self.user_avatar_name_container)
 
+        # AI头像和名称组合
+        self.ai_avatar_name_container = QWidget()
+        ai_avatar_name_layout = QHBoxLayout()
+        self.ai_avatar_name_container.setLayout(ai_avatar_name_layout)
+        ai_avatar_name_layout.addWidget(self.ai_avatar)
+        ai_avatar_name_layout.addWidget(self.ai_name_label)
+        left_layout.addWidget(self.ai_avatar_name_container)
+        # 更新 `update_avatars` 函数以使用 `RoundedRectLabel` 作为名称标签
+        def update_avatars(self, item):
+            current_contact = item.text()
+            user_avatar_path = self.contact_data[current_contact]['user_avatar']
+            ai_avatar_path = self.contact_data[current_contact]['ai_avatar']
+            chat_history = self.contact_data[current_contact]['chat_history']
+            user_name = self.contact_data[current_contact]['user_name']
+            ai_name = self.contact_data[current_contact]['ai_name']
+            contact_item = self.contact_list.item(self.contact_list.row(item))
+            ai_avatar = QPixmap(ai_avatar_path)
+
+            # 更新用户头像
+            _, user_avatar_extension = os.path.splitext(user_avatar_path)
+            if user_avatar_extension.lower() == ".gif":
+                self.user_avatar_movie.setFileName(user_avatar_path)
+                self.user_avatar_movie.start()
+                self.user_avatar.setMovie(self.user_avatar_movie)
+            else:
+                self.user_avatar_movie.stop()
+                self.user_avatar.setPixmap(QPixmap(user_avatar_path).scaled(50, 50, Qt.KeepAspectRatio))
+
+            # 更新 AI 头像
+            _, ai_avatar_extension = os.path.splitext(ai_avatar_path)
+            if ai_avatar_extension.lower() == ".gif":
+                self.ai_avatar_movie.setFileName(ai_avatar_path)
+                self.ai_avatar_movie.setScaledSize(QSize(50, 50))
+                self.ai_avatar_movie.start()
+            else:
+                self.ai_avatar_movie.stop()
+                self.ai_avatar.setPixmap(QPixmap(ai_avatar_path).scaled(50, 50, Qt.KeepAspectRatio))
+
+            # 更新联系人列表项图标
+            if ai_avatar_extension.lower() == ".gif":
+                contact_item.setIcon(QIcon(self.ai_avatar_movie.currentPixmap()))
+            else:
+                contact_item.setIcon(QIcon(ai_avatar.scaled(50, 50, Qt.KeepAspectRatio)))
+
+            # 更新聊天历史记录和名称标签
+            self.chat_history.setPlainText(chat_history)
+            self.user_name_label.setText(user_name)
+            self.ai_name_label.setText(ai_name)
 
         # 联系人列表
         self.contact_list = QListWidget()
@@ -241,34 +254,30 @@ class MainWindow(QMainWindow):
 
         self.show()
 
-
     def show_contact_context_menu(self, position):
         context_menu = QMenu()
 
-        # 添加和修改用户头像
-        edit_user_avatar_action = QAction("修改用户头像", self)
-        edit_user_avatar_action.triggered.connect(self.edit_user_avatar)
-        context_menu.addAction(edit_user_avatar_action)
+        # 添加用于修改用户和 AI 头像和名称的操作
+        change_user_avatar_action = QAction("修改用户头像", self)
+        change_user_avatar_action.triggered.connect(self.change_user_avatar)
+        context_menu.addAction(change_user_avatar_action)
 
-        # 添加和修改用户名称
-        edit_user_name_action = QAction("修改用户名称", self)
-        edit_user_name_action.triggered.connect(self.edit_user_name)
-        context_menu.addAction(edit_user_name_action)
+        change_ai_avatar_action = QAction("修改 AI 头像", self)
+        change_ai_avatar_action.triggered.connect(self.change_ai_avatar)
+        context_menu.addAction(change_ai_avatar_action)
 
-        # 添加和修改AI头像
-        edit_ai_avatar_action = QAction("修改AI头像", self)
-        edit_ai_avatar_action.triggered.connect(self.edit_ai_avatar)
-        context_menu.addAction(edit_ai_avatar_action)
+        change_user_name_action = QAction("修改用户名称", self)
+        change_user_name_action.triggered.connect(self.change_user_name)
+        context_menu.addAction(change_user_name_action)
 
-        # 添加和修改AI名称
-        edit_ai_name_action = QAction("修改AI名称", self)
-        edit_ai_name_action.triggered.connect(self.edit_ai_name)
-        context_menu.addAction(edit_ai_name_action)
+        change_ai_name_action = QAction("修改 AI 名称", self)
+        change_ai_name_action.triggered.connect(self.change_ai_name)
+        context_menu.addAction(change_ai_name_action)
 
-        # 添加和修改联系人窗口名称
-        edit_contact_name_action = QAction("修改联系人名称", self)
-        edit_contact_name_action.triggered.connect(self.edit_contact_name)
-        context_menu.addAction(edit_contact_name_action)
+        # 添加用于修改联系人窗口名称的操作
+        change_window_name_action = QAction("修改窗口名称", self)
+        change_window_name_action.triggered.connect(self.change_window_name)
+        context_menu.addAction(change_window_name_action)
 
         context_menu.exec_(self.contact_list.mapToGlobal(position))
 
