@@ -98,7 +98,8 @@ class MainWindow(QMainWindow):
         self.input_box = InputBox()
         input_layout.addWidget(self.input_box)
 
-        send_button = QPushButton("发送")
+        self.send_button = QPushButton("发送")
+
         send_button.clicked.connect(self.send_message)
         input_layout.addWidget(send_button)
 
