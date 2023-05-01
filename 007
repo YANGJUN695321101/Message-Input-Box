@@ -106,17 +106,20 @@ class MainWindow(QMainWindow):
         splitter.addWidget(right_widget)
 
         main_layout.addWidget(splitter)
-        # Define the left layout
+        # 定义左边的布局
         left_layout = QVBoxLayout()
-        left_layout.addWidget(self.input_text)
-        left_layout.addWidget(self.send_button)
+        # 添加输入框小部件
+        left_layout.addWidget(self.input_box)
+        # 添加发送按钮小部件
+        left_layout.addWidget(self.sendButton)
 
-        # Define the left widget
+        # 定义左边的小部件
         left_widget = QWidget()
         left_widget.setLayout(left_layout)
 
-        # Set the left widget as the main part of the main window
+        # 将左边的小部件设置为主窗口的主要部分
         self.setCentralWidget(left_widget)
+
 
         # 5. 添加头像显示
         avatar = QLabel(self)
