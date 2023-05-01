@@ -9,49 +9,29 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
                              QHBoxLayout, QInputDialog, QLabel, QLineEdit,
                              QListView, QListWidget, QListWidgetItem,
                              QMainWindow, QMenu, QPushButton, QTextEdit,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget,QPlainTextEdit)
 
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton
-
-class MessageInputBox(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.init_ui()
-
-    def init_ui(self):
-        self.setWindowTitle("Message Input Box")
-        self.setFixedSize(800, 600)
-
-        self.main_layout = QVBoxLayout(self)
-
-        self.text_edit = QTextEdit(self)
-        self.text_edit.setPlaceholderText("Type your message here...")
-        self.main_layout.addWidget(self.text_edit)
-
-        hbox = QHBoxLayout()
-        self.send_btn = QPushButton("Send", self)
-        hbox.addWidget(self.send_btn)
-
-        self.record_btn = QPushButton("Record", self)
-        hbox.addWidget(self.record_btn)
-
-        self.main_layout.addLayout(hbox)
-
-        self.send_btn.clicked.connect(self.send_msg)
-        self.record_btn.clicked.connect(self.record_msg)
-
-    def send_msg(self):
-        msg = self.text_edit.toPlainText()
-        print("Message:", msg)
-        self.text_edit.clear()
-
-    def record_msg(self):
-        print("Start recording message...")
-
+from PyQt5.QtWidgets import QApplication, QMainWindow
+import sys
 from MessageInputBox import MessageInputBox
+class MessageInputBox(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        self.text_input = QPlainTextEdit(self)
+        self.send_button = QPushButton("Send", self)
+
+        layout.addWidget(self.text_input)
+        layout.addWidget(self.send_button)
+
+        self.setLayout(layout)
 # 自定义圆角矩形 QLabel 子类
 class RoundedRectLabel(QLabel):
     def __init__(self, *args, **kwargs):
@@ -464,8 +444,12 @@ class MainWindow(QMainWindow):
         
         self.input_text.clear()
         
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MessageInputBox()
+    window = QMainWindow()
+    input_box = MessageInputBox(window)
+    window.setCentralWidget(input_box)
     window.show()
     sys.exit(app.exec_())
