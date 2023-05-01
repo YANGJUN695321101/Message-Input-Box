@@ -1,13 +1,15 @@
-import sys
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QLineEdit, QTextEdit, QPushButton,
-                             QLabel, QWidget, QListWidget, QListWidgetItem, QFileDialog, QDialog, QAction, QInputDialog)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon, QMovie,QListView
-from PyQt5.QtWidgets import QMenu
-from PyQt5.QtCore import QFileInfo
 import os
-from PyQt5.QtCore import QSize
+import sys
+from PyQt5.QtCore import QFileInfo, QSize, Qt
+from PyQt5.QtGui import QIcon,  QMovie, QPixmap
+from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
+                             QHBoxLayout, QInputDialog, QLabel, QLineEdit,
+                             QListView, QListWidget, QListWidgetItem,
+                             QMainWindow, QMenu, QPushButton, QTextEdit,
+                             QVBoxLayout, QWidget)
 
+
+# 用户资料对话框类
 class ProfileDialog(QDialog):
     def __init__(self, parent, contact_data, is_user=True):
         super().__init__(parent)
@@ -35,6 +37,7 @@ class ProfileDialog(QDialog):
 
         self.setLayout(layout)
 
+    # 设置头像
     def set_avatar(self, file_name, size=None):
         if size is None:
             size = QSize(100, 100)
@@ -48,6 +51,7 @@ class ProfileDialog(QDialog):
         else:
             self.avatar_label.setPixmap(QPixmap(file_name).scaled(size.width(), size.height(), Qt.KeepAspectRatio))
 
+    # 更改名称
     def change_name(self):
         old_name = self.contact_data['user_name' if self.is_user else 'ai_name']
         new_name, ok_pressed = QInputDialog.getText(self, "更改名称", "请输入新的名称:", text=old_name)
@@ -55,6 +59,7 @@ class ProfileDialog(QDialog):
             self.contact_data['user_name' if self.is_user else 'ai_name'] = new_name
             self.name_label.setText(new_name)
 
+    # 更改头像
     def change_avatar(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
@@ -65,18 +70,13 @@ class ProfileDialog(QDialog):
             self.set_avatar(file_name)
             self.contact_data["user_avatar" if self.is_user else "ai_avatar"] = file_name
 
-
-
-
+# 主窗口类
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.contact_list.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.contact_list.customContextMenuRequested.connect(self.show_contact_context_menu)
 
         self.setGeometry(100, 100, 800, 600)
         self.setWindowTitle('仿微信聊天')
-        self.ai_avatar = QLabel(self)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -85,43 +85,46 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(main_layout)
 
         left_layout = QVBoxLayout()
-        self.ai_avatar_movie = QMovie()
-        self.ai_avatar.setMovie(self.ai_avatar_movie)
 
+        # 用户头像
         self.user_avatar = QLabel()
         self.user_avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio))
-        self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\ABC.gif")  # Change to your animated GIF path
+        self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\ABC.gif") # 更改为您的GIF路径
         self.user_avatar.setMovie(self.user_avatar_movie)
         self.user_avatar_movie.start()
-        #self.user_avatar.mousePressEvent = self.show_user_profile
+        # self.user_avatar.mousePressEvent = self.show_user_profile
         left_layout.addWidget(self.user_avatar)
-        self.user_avatar_movie.setScaledSize(QSize(50, 50))  # Add this line to set the user avatar GIF size
+        self.user_avatar_movie.setScaledSize(QSize(50, 50)) # 添加这一行以设置用户头像GIF尺寸
         self.user_avatar.setMovie(self.user_avatar_movie)
         self.user_avatar_movie.start()
         self.user_name_label = QLabel()
         left_layout.addWidget(self.user_name_label)
-
+            # AI头像
         self.ai_avatar = QLabel()
         self.ai_avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
-        self.ai_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\DEF.gif")  # Change to your animated GIF path
+        self.ai_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\DEF.gif")  # 更改为您的GIF路径
         self.ai_avatar.setMovie(self.ai_avatar_movie)
         self.ai_avatar_movie.start()
-        #self.ai_avatar.mousePressEvent = self.show_ai_profile
+        # self.ai_avatar.mousePressEvent = self.show_ai_profile
         left_layout.addWidget(self.ai_avatar)
         self.ai_name_label = QLabel()
         left_layout.addWidget(self.ai_name_label)
-        self.ai_avatar_movie.setScaledSize(QSize(50, 50))  # Add this line to set the AI avatar GIF size
+        self.ai_avatar_movie.setScaledSize(QSize(50, 50))  # 添加这一行以设置AI头像GIF尺寸
         self.ai_avatar.setMovie(self.ai_avatar_movie)
         self.ai_avatar_movie.start()
+
+        # 联系人列表
         self.contact_list = QListWidget()
         self.contact_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.contact_list.customContextMenuRequested.connect(self.contact_context_menu)
         left_layout.addWidget(self.contact_list)
 
+        # 新建聊天卡按钮
         add_contact_button = QPushButton('新建聊天卡', self)
         add_contact_button.clicked.connect(self.add_contact)
         left_layout.addWidget(add_contact_button)
 
+        # 联系人数据
         self.contact_data = {}
         for i in range(1, 11):
             contact_name = f"联系人 {i}"
@@ -136,19 +139,24 @@ class MainWindow(QMainWindow):
                 'ai_name': f"AI {i}",
             }
 
+        # 连接联系人变更事件
         self.contact_list.currentItemChanged.connect(self.update_avatars)
 
         main_layout.addLayout(left_layout)
 
+        # 右侧布局
         right_layout = QVBoxLayout()
 
+        # 聊天记录
         self.chat_history = QTextEdit()
         self.chat_history.setReadOnly(True)
         right_layout.addWidget(self.chat_history)
 
+        # 输入框
         self.input_text = QLineEdit()
         right_layout.addWidget(self.input_text)
 
+        # 发送按钮
         send_button = QPushButton('发送')
         send_button.clicked.connect(self.send_message)
         right_layout.addWidget(send_button)
@@ -156,6 +164,8 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(right_layout)
 
         self.show()
+
+
     def show_contact_context_menu(self, position):
         context_menu = QMenu()
 
@@ -332,4 +342,3 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     sys.exit(app.exec_())
-
