@@ -28,23 +28,51 @@ class CustomLabel(QLabel):
     def paintEvent(self, event):
         painter = QPainter(self)
 
-        user_rect = QRect(0, 0, 150, self.height())
+        user_rect = QRect(0, 0, 200, self.height())
         paint_rounded_rect(painter, user_rect, 10, QColor(0, 0, 255))
         painter.drawPixmap(5, 5, self.user_avatar)
         painter.drawText(60, 30, "用户名称")
 
-        ai_rect = QRect(self.width() - 150, 0, 150, self.height())
+        ai_rect = QRect(self.width() - 200, 0, 200, self.height())
         paint_rounded_rect(painter, ai_rect, 10, QColor(0, 0, 255))
         painter.drawPixmap(self.width() - 55, 5, self.user_avatar_movie.currentPixmap())
         painter.drawText(self.width() - 130, 30, "AI名称")
 
         super(CustomLabel, self).paintEvent(event)
-       
-        app = QApplication([])
-        label = CustomLabel()
-        label.setFixedSize(300, 60)
-        label.show()
-        app.exec_()
+
+app = QApplication([])
+
+main_widget = QWidget()
+main_layout = QVBoxLayout()
+
+label = CustomLabel()
+label.setFixedSize(400, 60)
+main_layout.addWidget(label)
+
+# 在这里添加其他控件
+# main_layout.addWidget(your_other_widget)
+
+main_widget.setLayout(main_layout)
+main_widget.show()
+
+app.exec_()
+
+app = QApplication([])
+
+main_widget = QWidget()
+main_layout = QVBoxLayout()
+
+label = CustomLabel()
+label.setFixedSize(400, 60)
+main_layout.addWidget(label)
+
+# 在这里添加其他控件
+# main_layout.addWidget(your_other_widget)
+
+main_widget.setLayout(main_layout)
+main_widget.show()
+
+app.exec_()
 
 
 # 用户资料对话框类
