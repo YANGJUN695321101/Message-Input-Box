@@ -100,19 +100,22 @@ class MainWindow(QMainWindow):
 
         self.send_button = QPushButton("发送")
 
-        send_button.clicked.connect(self.send_message)
-        input_layout.addWidget(send_button)
+        self.send_button.clicked.connect(self.send_message)
+        input_layout.addWidget(self.send_button)
 
         right_layout.addWidget(input_widget)
         splitter.addWidget(right_widget)
 
         main_layout.addWidget(splitter)
+        
+        self.list_widget = QListWidget()
+
         # 定义左边的布局
         left_layout = QVBoxLayout()
         # 添加输入框小部件
         left_layout.addWidget(self.input_box)
         # 添加发送按钮小部件
-        left_layout.addWidget(self.sendButton)
+        left_layout.addWidget(self.send_button)
 
         # 定义左边的小部件
         left_widget = QWidget()
@@ -128,6 +131,7 @@ class MainWindow(QMainWindow):
         avatar_layout = QVBoxLayout()
         avatar_layout.addWidget(avatar)
         left_layout.addLayout(avatar_layout)
+        
         # 8. 添加联系人右键菜单栏
         self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list_widget.customContextMenuRequested.connect(self.contact_context_menu)
