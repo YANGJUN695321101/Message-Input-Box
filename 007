@@ -124,6 +124,7 @@ class MainWindow(QMainWindow):
         # 将左边的小部件设置为主窗口的主要部分
         self.setCentralWidget(left_widget)
 
+        
 
         # 5. 添加头像显示
         avatar = QLabel(self)
@@ -131,6 +132,8 @@ class MainWindow(QMainWindow):
         avatar_layout = QVBoxLayout()
         avatar_layout.addWidget(avatar)
         left_layout.addLayout(avatar_layout)
+        # 将头像添加到左侧布局
+        left_layout.addWidget(self.avatar_label)
         
         # 8. 添加联系人右键菜单栏
         self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
