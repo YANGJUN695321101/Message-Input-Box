@@ -106,9 +106,21 @@ class MainWindow(QMainWindow):
         splitter.addWidget(right_widget)
 
         main_layout.addWidget(splitter)
+        # Define the left layout
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.input_text)
+        left_layout.addWidget(self.send_button)
+
+        # Define the left widget
+        left_widget = QWidget()
+        left_widget.setLayout(left_layout)
+
+        # Set the left widget as the main part of the main window
+        self.setCentralWidget(left_widget)
+
         # 5. 添加头像显示
         avatar = QLabel(self)
-        avatar.setPixmap(QPixmap("path/to/avatar_image").scaled(50, 50, Qt.KeepAspectRatio))
+        avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio))
         avatar_layout = QVBoxLayout()
         avatar_layout.addWidget(avatar)
         left_layout.addLayout(avatar_layout)
