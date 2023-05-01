@@ -119,25 +119,26 @@ class MainWindow(QMainWindow):
 
         # 定义左边的小部件
         left_widget = QWidget()
-        left_widget.setLayout(left_layout)
+        left_layout = QVBoxLayout()
 
         # 将左边的小部件设置为主窗口的主要部分
         self.setCentralWidget(left_widget)
 
-        
+
 
         # 5. 添加头像显示
-        avatar = QLabel(self)
-        avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio))
-        avatar_layout = QVBoxLayout()
-        avatar_layout.addWidget(avatar)
-        left_layout.addLayout(avatar_layout)
+        avatar_label = QLabel(self)
+        avatar_label.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio))
+        left_layout.addWidget(avatar_label)
         # 将头像添加到左侧布局
         left_layout.addWidget(self.avatar_label)
         
         # 8. 添加联系人右键菜单栏
         self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list_widget.customContextMenuRequested.connect(self.contact_context_menu)
+        # 将左边的小部件设置为主窗口的主要部分
+        left_widget.setLayout(left_layout)
+        self.setCentralWidget(left_widget)
 
         self.add_contacts()
     def contact_context_menu(self, pos):
