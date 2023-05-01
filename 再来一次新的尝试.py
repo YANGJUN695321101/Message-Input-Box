@@ -1,12 +1,50 @@
 import os
 import sys
-from PyQt5.QtCore import QFileInfo, QSize, Qt
-from PyQt5.QtGui import QIcon,  QMovie, QPixmap
+
+from PyQt5.QtCore import QFileInfo, QRect, QRectF, QSize, Qt
+from PyQt5.QtGui import (QBrush, QColor, QFont, QIcon, QMovie, QPainter, QPen,
+                         QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
                              QHBoxLayout, QInputDialog, QLabel, QLineEdit,
                              QListView, QListWidget, QListWidgetItem,
                              QMainWindow, QMenu, QPushButton, QTextEdit,
                              QVBoxLayout, QWidget)
+
+
+def paint_rounded_rect(painter, rect, radius, color):
+    painter.setBrush(color)
+    painter.setPen(Qt.NoPen)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    painter.drawRoundedRect(rect, radius, radius)
+
+class CustomLabel(QLabel):
+    def __init__(self, parent=None):
+        super(CustomLabel, self).__init__(parent)
+        self.user_avatar = QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio)
+        self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\XYZ.gif")
+        self.user_avatar_movie.setScaledSize(QSize(50, 50))
+        self.user_avatar_movie.start()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+
+        user_rect = QRect(0, 0, 150, self.height())
+        paint_rounded_rect(painter, user_rect, 10, QColor(0, 0, 255))
+        painter.drawPixmap(5, 5, self.user_avatar)
+        painter.drawText(60, 30, "用户名称")
+
+        ai_rect = QRect(self.width() - 150, 0, 150, self.height())
+        paint_rounded_rect(painter, ai_rect, 10, QColor(0, 0, 255))
+        painter.drawPixmap(self.width() - 55, 5, self.user_avatar_movie.currentPixmap())
+        painter.drawText(self.width() - 130, 30, "AI名称")
+
+        super(CustomLabel, self).paintEvent(event)
+       
+        app = QApplication([])
+        label = CustomLabel()
+        label.setFixedSize(300, 60)
+        label.show()
+        app.exec_()
 
 
 # 用户资料对话框类
@@ -89,29 +127,39 @@ class MainWindow(QMainWindow):
         # 用户头像
         self.user_avatar = QLabel()
         self.user_avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\ABC.png").scaled(50, 50, Qt.KeepAspectRatio))
-        self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\ABC.gif") # 更改为您的GIF路径
+        self.user_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\ABC.gif")  # 更改为您的GIF路径
         self.user_avatar.setMovie(self.user_avatar_movie)
         self.user_avatar_movie.start()
-        # self.user_avatar.mousePressEvent = self.show_user_profile
         left_layout.addWidget(self.user_avatar)
-        self.user_avatar_movie.setScaledSize(QSize(50, 50)) # 添加这一行以设置用户头像GIF尺寸
-        self.user_avatar.setMovie(self.user_avatar_movie)
-        self.user_avatar_movie.start()
+
+        # 用户名称
         self.user_name_label = QLabel()
+        self.user_name_label.setText("用户")
+        self.user_name_label.setAlignment(Qt.AlignCenter)
+        self.user_name_label.setAutoFillBackground(True)
+        palette = self.user_name_label.palette()
+        palette.setColor(self.user_name_label.backgroundRole(), QColor(0, 0, 255, 128))
+        self.user_name_label.setPalette(palette)
         left_layout.addWidget(self.user_name_label)
-            # AI头像
+
+        # AI头像
         self.ai_avatar = QLabel()
         self.ai_avatar.setPixmap(QPixmap("D:\\DESK\\GPT-3.5\\DEF.png").scaled(50, 50, Qt.KeepAspectRatio))
         self.ai_avatar_movie = QMovie("D:\\DESK\\GPT-3.5\\DEF.gif")  # 更改为您的GIF路径
         self.ai_avatar.setMovie(self.ai_avatar_movie)
         self.ai_avatar_movie.start()
-        # self.ai_avatar.mousePressEvent = self.show_ai_profile
         left_layout.addWidget(self.ai_avatar)
+
+        # AI名称
         self.ai_name_label = QLabel()
+        self.ai_name_label.setText("AI")
+        self.ai_name_label.setAlignment(Qt.AlignCenter)
+        self.ai_name_label.setAutoFillBackground(True)
+        palette = self.ai_name_label.palette()
+        palette.setColor(self.ai_name_label.backgroundRole(), QColor(0, 0, 255, 128))
+        self.ai_name_label.setPalette(palette)
         left_layout.addWidget(self.ai_name_label)
-        self.ai_avatar_movie.setScaledSize(QSize(50, 50))  # 添加这一行以设置AI头像GIF尺寸
-        self.ai_avatar.setMovie(self.ai_avatar_movie)
-        self.ai_avatar_movie.start()
+
 
         # 联系人列表
         self.contact_list = QListWidget()
