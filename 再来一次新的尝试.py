@@ -9,7 +9,41 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QFileDialog,
                              QListView, QListWidget, QListWidgetItem,
                              QMainWindow, QMenu, QPushButton, QTextEdit,
                              QVBoxLayout, QWidget)
+class MessageInputBox(QWidget):
+    def __init__(self):
+        super().__init__()
 
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Message Input Box")
+        self.setFixedSize(800, 600)
+
+        self.main_layout = QVBoxLayout(self)
+
+        self.text_edit = QTextEdit(self)
+        self.text_edit.setPlaceholderText("Type your message here...")  # 修复拼写错误
+        self.main_layout.addWidget(self.text_edit)
+
+        hbox = QHBoxLayout()  # 为 QHBoxLayout 分配变量
+        self.send_btn = QPushButton("Send", self)
+        hbox.addWidget(self.send_btn)
+
+        self.record_btn = QPushButton("Record", self)
+        hbox.addWidget(self.record_btn)
+
+        self.main_layout.addLayout(hbox)  # 将 hbox 添加到 main_layout
+
+        self.send_btn.clicked.connect(self.send_msg)
+        self.record_btn.clicked.connect(self.record_msg)
+
+    def send_msg(self):
+        msg = self.text_edit.toPlainText()
+        print("Message:", msg)
+        self.text_edit.clear()
+
+    def record_msg(self):
+        print("Start recording message...")
 
 # 自定义圆角矩形 QLabel 子类
 class RoundedRectLabel(QLabel):
