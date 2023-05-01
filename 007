@@ -1,12 +1,13 @@
 import sys
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QSplitter, QVBoxLayout, QWidget,
-    QTextEdit, QLineEdit, QPushButton, QLabel, QListView, QMenu,
-    QInputDialog, QFileDialog, QListWidgetItem, QListWidget, QAction,
-    QGraphicsOpacityEffect
-)
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog,
+                             QGraphicsOpacityEffect, QHBoxLayout, QInputDialog,
+                             QLabel, QLineEdit, QListView, QListWidget,
+                             QListWidgetItem, QMainWindow, QMenu,
+                             QPlainTextEdit, QPushButton, QSizePolicy,
+                             QSplitter, QTextEdit, QVBoxLayout, QWidget)
 
 
 class ChatWindow(QTextEdit):
@@ -105,8 +106,34 @@ class MainWindow(QMainWindow):
         splitter.addWidget(right_widget)
 
         main_layout.addWidget(splitter)
+        # 5. 添加头像显示
+        avatar = QLabel(self)
+        avatar.setPixmap(QPixmap("path/to/avatar_image").scaled(50, 50, Qt.KeepAspectRatio))
+        avatar_layout = QVBoxLayout()
+        avatar_layout.addWidget(avatar)
+        left_layout.addLayout(avatar_layout)
+        # 8. 添加联系人右键菜单栏
+        self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list_widget.customContextMenuRequested.connect(self.contact_context_menu)
 
         self.add_contacts()
+    def contact_context_menu(self, pos):
+        # 创建一个右键菜单
+        menu = QMenu(self)
+
+        # 添加菜单项
+        change_name_action = menu.addAction("修改联系人聊天窗口名字")
+        change_avatar_action = menu.addAction("修改联系人聊天窗口头像")
+        change_intro_action = menu.addAction("修改联系人简介")
+
+        # 将菜单项与槽函数连接
+        change_name_action.triggered.connect(self.change_contact_name)
+        change_avatar_action.triggered.connect(self.change_contact_avatar)
+        change_intro_action.triggered.connect(self.change_contact_intro)
+
+        # 在鼠标点击的位置显示菜单
+        menu.exec_(self.list_widget.mapToGlobal(pos))
+
 
     def add_contacts(self):
         # 添加联系人示例
